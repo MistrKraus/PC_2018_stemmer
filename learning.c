@@ -91,14 +91,13 @@ void load_words_mls(FILE *file, int mls) {
     // size of array
     size_t arr_size = DEF_ARR_SIZE;
     // array of words
-    char **full_words = (char **) malloc(sizeof(char *)*arr_size);
-    unsigned int *word_pointer = (unsigned int *) malloc(sizeof(unsigned int)*10);
+    char *full_words = (char *) malloc(sizeof(char *)*arr_size);
     // number of words in array
     size_t word_num = 0;
     //printf("%d\n", (int)(*(&full_words + 1) - full_words));
     c = fgetc(file);
 
-    while (c != EOF && word_num < 1) {// && word_num < 300) {// && arr_size < DEF_ARR_SIZE) {
+    while (c != EOF && word_num < DEF_ARR_SIZE) {// && word_num < 300) {// && arr_size < DEF_ARR_SIZE) {
         //full_words[arr_size][0] = (char *) malloc(sizeof(char) * WORD_LEN);
         char *word = (char *) malloc(sizeof(char) * WORD_LEN);
         if (!word) {
@@ -113,8 +112,7 @@ void load_words_mls(FILE *file, int mls) {
         }
         // terminate with the null character
         word[n] = '\0';
-        word_pointer[word_num] = (unsigned int) word;
-        //full_words[word_num] = word;
+        full_words[word_num] = word;
         // add number of currently loaded
         word_num++;
 
@@ -135,14 +133,6 @@ void load_words_mls(FILE *file, int mls) {
         //printf("+\n");
     }
     printf("Words loaded\n");
-
-    char *w = (char *)word_pointer[0];
-
-    printf("%s\n", w);
-
-    for (int j = 0; j < WORD_LEN; ++j) {
-        printf("%c\n", w[j++]);
-    }
 
     return;
 
