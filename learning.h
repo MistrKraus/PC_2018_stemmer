@@ -5,7 +5,10 @@
 #ifndef STEMMER_LEARNING_H
 #define STEMMER_LEARNING_H
 
-void load_words(FILE *file);
-void load_words_mls(FILE *file, int mls);
+#include "trie.h"
+
+node *load_words(FILE *file);
+node *load_words_mls(FILE *file, int mls);
+int count_words(char **full_words, size_t word_num);
 
 #endif //STEMMER_LEARNING_H

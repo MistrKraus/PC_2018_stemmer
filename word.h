@@ -5,13 +5,14 @@
 #ifndef __WORD__
 #define __WORD__
 
-#define WORD_LEN 128
+#define WORD_LEN 64
+#define ASCII_A 65
 
-typedef struct theword {
-    char word[WORD_LEN];
+typedef struct {
+    char *word;
     int num;
 } word;
 
-//void add_word(char *word, struct word *dict);
+int compare(const void *a, const void *b);
 
 #endif

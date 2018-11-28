@@ -4,6 +4,7 @@
 
 #include "learning.h"
 #include "word_processing.h"
+#include "trie.h"
 
 #define MIN_ARG_NUM 2
 #define MAX_ARG_NUM 3
@@ -64,6 +65,7 @@ int main(int argc, char const *argv[]) {
 
     FILE *file = fopen(argv[1], "r");
 
+    // if file not found add .txt to the path
     if (!file) {
         char arg_1[256];
         snprintf(arg_1, sizeof arg_1, "%s%s", argv[1], ".txt");
@@ -91,8 +93,18 @@ int main(int argc, char const *argv[]) {
             return EXIT_FAILURE;
         }
 
-        if (file) load_words_mls(file, arg);
-        else process_words_msf(argv[2], arg);
+        if (file) {
+            node *words = NULL;
+            words = load_words_mls(file, arg);
+            if (!words) {
+                printf("Error");
+                return EXIT_FAILURE;
+            }
+            dumpTrie(words, "");
+        }
+        else {
+            process_words_msf(argv[2], arg);
+        }
     } else {
         if (file) load_words(file);
         else {
