@@ -3,6 +3,8 @@
 //
 
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 #include "word.h"
 #include "learning.h"
 #include "trie.h"
@@ -30,6 +32,7 @@ node* load_words_mls(FILE *file, int mls) {
 
         n = 0;
         while (c >= ASCII_A) {
+//            w[n++] = tolower((char) c);
             w[n++] = (char) c;
             c = fgetc(file);
         }
