@@ -19,7 +19,9 @@ typedef struct thenode {
 
 node *createTrie();
 int insertToTrie(node *root, char *word/* word[] */);
-int freeTrie(node *root);
+void freeTrie(node *root);
 void dumpTrie(node *root, char prefix[]);
+char *getWord(node *root, char prefix[]);
+char *getNextWord(node *root, char* word, char prefix[]);
 
 #endif //CV10_18_TRIE_H

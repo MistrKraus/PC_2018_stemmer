@@ -94,26 +94,20 @@ int main(int argc, char const *argv[]) {
         }
 
         if (file) {
-            node *words = NULL;
-            words = load_words_mls(file, arg);
-            if (!words) {
-                printf("Error");
-                return EXIT_FAILURE;
-            }
-            dumpTrie(words, "");
+            //words = load_words_mls(file, arg);
+            //dumpTrie(words, "");
+            learn_mls(file, arg);
         }
         else {
             process_words_msf(argv[2], arg);
         }
     } else {
-        if (file) load_words(file);
+        if (file) learn(file);
         else {
             //printf("File not found");
             process_words(argv[1]);
         }
     }
-
-
 
     return EXIT_SUCCESS;
 }

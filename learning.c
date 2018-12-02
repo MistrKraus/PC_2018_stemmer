@@ -5,11 +5,25 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <locale.h>
 #include "word.h"
 #include "learning.h"
 #include "trie.h"
 
 #define DEF_MLS 3
+
+// return lowercase char
+int processChar(int c) {
+//    setlocale(LC_CTYPE, "");
+    if (isupper(c)) {
+        c = tolower(c);
+    } else {
+        if (c >= 192 && c <= 221)
+            c += 32;
+    }
+
+    return c;
+}
 
 node* load_words_mls(FILE *file, int mls) {
     printf("File found! %d\n", mls);
@@ -31,9 +45,9 @@ node* load_words_mls(FILE *file, int mls) {
         char w[WORD_LEN];
 
         n = 0;
-        while (c >= ASCII_A) {
-//            w[n++] = tolower((char) c);
-            w[n++] = (char) c;
+        while ((c >= ASCII_A && c <= ASCII_Z) || c >= ASCII_a) {
+            w[n++] = (char) processChar(c);
+
             c = fgetc(file);
         }
         // terminate with the null character
@@ -72,6 +86,36 @@ node* load_words_mls(FILE *file, int mls) {
     //count_words(full_words, word_num);
 }
 
-node *load_words(FILE *file) {
-    return load_words_mls(file, DEF_MLS);
+int learn_mls(FILE *file, int mls) {
+    node *words = NULL;
+    words = load_words_mls(file, mls);
+
+    if (!words) {
+        printf("Error");
+        return 1;
+    }
+
+//    dumpTrie(words, "");
+
+    // TODO Národní znaky
+//    char *x = "èapka";
+//    printf("%s (%d)\n", x, (int)x[0]);
+//
+//    printf("%d", (int) 'è');
+
+//    char *word = getWord(words, "");
+//    char *word2 = getNextWord(words, "karel", "");
+//    char *word3 = getNextWord(words, word2, "");
+//    char *word4 = getNextWord(words, word3, "");
+//    char *word5 = getNextWord(words, word4, "");
+//
+//    printf("Word1: %s\n", word);
+//    printf("Word2: %s\n", word2);
+//    printf("Word3: %s\n", word3);
+//    printf("Word4: %s\n", word4);
+//    printf("Word5: %s\n", word5);
+}
+
+int learn(FILE *file) {
+    learn_mls(file, DEF_MLS);
 }

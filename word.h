@@ -7,6 +7,9 @@
 
 #define WORD_LEN 64
 #define ASCII_A 65
+#define ASCII_Z 90
+#define ASCII_a 97
+#define ASCII_z 122
 
 typedef struct {
     char *word;
