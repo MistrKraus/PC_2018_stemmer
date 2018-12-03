@@ -43,6 +43,10 @@ int input_check(int argc, char const *argv[]) {
 }
 
 int main(int argc, char const *argv[]) {
+    //chcp(28592);  zmena kodovani (windows)
+    //ISO latin 2
+    //    8859-2
+
     //printf("%d %s\n", argc, argv[1]);
     switch (input_check(argc, argv)) {
         case 0:

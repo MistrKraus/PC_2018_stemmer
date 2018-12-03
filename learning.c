@@ -40,7 +40,7 @@ node* load_words_mls(FILE *file, int mls) {
 
     c = fgetc(file);
 
-    while (c != EOF && word_num < 300) {// && arr_size < DEF_ARR_SIZE) {
+    while (c != EOF && word_num < 6) {// && arr_size < DEF_ARR_SIZE) {
         //full_words[arr_size][0] = (char *) malloc(sizeof(char) * WORD_LEN);
         char w[WORD_LEN];
 
@@ -95,25 +95,24 @@ int learn_mls(FILE *file, int mls) {
         return 1;
     }
 
-//    dumpTrie(words, "");
+    dumpTrie(words, "");
 
-    // TODO Národní znaky
 //    char *x = "èapka";
 //    printf("%s (%d)\n", x, (int)x[0]);
 //
 //    printf("%d", (int) 'è');
 
-//    char *word = getWord(words, "");
-//    char *word2 = getNextWord(words, "karel", "");
-//    char *word3 = getNextWord(words, word2, "");
-//    char *word4 = getNextWord(words, word3, "");
-//    char *word5 = getNextWord(words, word4, "");
-//
-//    printf("Word1: %s\n", word);
-//    printf("Word2: %s\n", word2);
-//    printf("Word3: %s\n", word3);
-//    printf("Word4: %s\n", word4);
-//    printf("Word5: %s\n", word5);
+    char *word = getWord(words, "");
+    char *word2 = getNextWord(words, word, "");
+    char *word3 = getNextWord(words, word2, "");
+    char *word4 = getNextWord(words, word3, "");
+    char *word5 = getNextWord(words, word4, "");
+
+    printf("Word1: %s\n", word);
+    printf("Word2: %s\n", word2);
+    printf("Word3: %s\n", word3);
+    printf("Word4: %s\n", word4);
+    printf("Word5: %s\n", word5);
 }
 
 int learn(FILE *file) {

@@ -117,34 +117,27 @@ node *getNextWordRoot(node *root, char* word, char *prefix) {
 char *getNextWord(node *root, char* word, char prefix[]) {
     if (!root || !word[0]) return prefix;
 
-//    char str[strlen(prefix) + 2];
-////    prefix[strlen(prefix)] = word[0];
-//    sprintf(str, "%s%c", prefix, word[0]);
-//    char *temp = str;
     char *str = NULL;
     str = (char *) malloc(sizeof(char) * (strlen(prefix) + 2));
-    sprintf(str, "%s%c", prefix, word[0]);
+    sprintf(str, "%s%c", prefix, (uchar) word[0]);
     char *temp = NULL;
     temp = (char *) malloc(sizeof(char) * (strlen(prefix) + 2));
 
-//    if (!str || !temp)
-//        return NULL;
+    if (!str || !temp)
+        return NULL;
 
     strcpy(temp, str);
-//    temp = prefix;
 
     if (root->subtries[word[0]]) {
-//        sprintf(str, "%s%c", prefix, word[0]);
         temp = getNextWord(root->subtries[word[0]], &word[1], str);
     }
 
     if (!temp || (strlen(temp) == strlen(str))) {
-//    if (!temp || (strlen(temp) == strlen(str) - 1)) {
         temp = (char *) malloc(sizeof(char) * (strlen(prefix) + 2));
         if (!temp)
             return NULL;
 
-        int i = (int) word[0] + 1;
+        int i = (int) ((uchar) word[0]) + 1;
         for (i; i < CHARSET_LEN; i++) {
             sprintf(temp, "%s%c", prefix, i);
             if (root->frequency[i]) {
@@ -161,31 +154,3 @@ char *getNextWord(node *root, char* word, char prefix[]) {
 
     return temp;
 }
-
-//    int i, wordLen = strlen(word);
-//    char nextWord[WORD_LEN];
-//
-//    for (i; i < wordLen - 1; i++) {
-//    }
-//
-//    char str[strlen(prefix) + 2];
-//    prefix[strlen(prefix - 1)] = word[0];
-//
-//    prefix = getNextWord(root->subtries[(int) word[0]], &word[1], str);
-//
-//    int i = (int) word[0];
-//
-//    for (i; i < CHARSET_LEN; i++) {
-//        sprintf(str, "%s%c", prefix, i);
-//        if (root->frequency[i]) {
-//            return prefix;
-////            char *nextWord = str;
-////            return nextWord;
-//        }
-//
-//        if (root->subtries[i])
-//            return getWord(root->subtries[i], str);
-//    }
-//
-//    return prefix;
-//}

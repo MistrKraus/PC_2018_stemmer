@@ -11,6 +11,8 @@
 #define ASCII_a 97
 #define ASCII_z 122
 
+typedef unsigned char uchar;
+
 typedef struct {
     char *word;
     int num;
