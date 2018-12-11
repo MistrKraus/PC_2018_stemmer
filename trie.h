@@ -8,7 +8,7 @@
 #define CHARSET_LEN 256
 
 #define EC 0
-#define ERR_NONEXISTENT_TRIE 1
+#define ERR_NONEXISTING_TRIE 1
 #define ERR_OUT_OF_MEMORY 2
 
 typedef struct thenode {
@@ -17,11 +17,12 @@ typedef struct thenode {
     int depth;
 } node;
 
-node *createTrie();
-int insertToTrie(node *root, char *word/* word[] */);
-void freeTrie(node *root);
-void dumpTrie(node *root, char prefix[]);
-char *getWord(node *root, char prefix[]);
-char *getNextWord(node *root, char* word, char prefix[]);
+node *create_trie();
+int insert_to_trie(node *root, char *word/* word[] */);
+int free_trie(node *root);
+void dump_trie(node *root, char *prefix);
+char *get_word(node *root, char *prefix);
+char *get_next_word(node *root, char *word, char *prefix);
+int get_frequency(node *root, char *word);
 
 #endif //CV10_18_TRIE_H

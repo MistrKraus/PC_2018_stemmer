@@ -47,6 +47,10 @@ int main(int argc, char const *argv[]) {
     //ISO latin 2
     //    8859-2
 
+//    get_root("poiuz", "oijkl", 3);
+//
+//    return 0;
+
     //printf("%d %s\n", argc, argv[1]);
     switch (input_check(argc, argv)) {
         case 0:
@@ -76,7 +80,7 @@ int main(int argc, char const *argv[]) {
         file = fopen(arg_1, "r");
     }
 
-    if (argc == MAX_ARG_NUM){
+    if (argc == MAX_ARG_NUM) {
         int arg = 0;
         arg = atoi(&argv[MAX_ARG_NUM - 1][5]);
 //
@@ -98,8 +102,6 @@ int main(int argc, char const *argv[]) {
         }
 
         if (file) {
-            //words = load_words_mls(file, arg);
-            //dumpTrie(words, "");
             learn_mls(file, arg);
         }
         else {

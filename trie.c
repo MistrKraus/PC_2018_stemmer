@@ -9,7 +9,7 @@
 #include "trie.h"
 #include "word.h"
 
-node *createTrie() {
+node *create_trie() {
     int i;
 
     node *temp = (node *) malloc(sizeof(node));
@@ -23,50 +23,66 @@ node *createTrie() {
     return temp;
 }
 
-int insertToTrie(node *root, char *word) {
-    if (!root) return ERR_NONEXISTENT_TRIE;
+int insert_to_trie(node *root, char *word) {
+    if (!root || !word) return ERR_NONEXISTING_TRIE;
     unsigned int idx = 0;
     int i, L;
     node *walk = root;
 
     L = strlen(word);
-
     for (i = 0; i < L; i++) {
         idx = (unsigned char) word[i];
         if (walk->subtries[idx]) {
-            walk = walk->subtries[idx];
+            if (i < L - 1)
+                walk = walk->subtries[idx];
+            else
+                walk->frequency[idx]++;
         } else {
             if (i < L - 1) {
-                walk->subtries[idx] = createTrie();
+                walk->subtries[idx] = create_trie();
                 if (!walk->subtries[idx])
                     return ERR_OUT_OF_MEMORY;
 
                 walk = walk->subtries[idx];
-            }
+            } else
+                walk->frequency[idx]++;
         }
     }
 
-    walk->frequency[idx]++;
+//    walk->frequency[idx]++;
 
     return EC;
 }
 
-void dumpTrie(node *root, char prefix[]) {
+void dump_trie(node *root, char *prefix) {
     if (!root) return;
 
     int i;
     char str[strlen(prefix) + 2];   // novy znak + ukoncovaci
 
-    for (i = 0; i < CHARSET_LEN; i++) {
+    for (i = ASCII_a; i < CHARSET_LEN; i++) {
         sprintf(str, "%s%c", prefix, i);
         if (root->frequency[i])
             printf("%s (%d)\n", str, root->frequency[i]);
         if (root->subtries[i])
-            dumpTrie(root->subtries[i], str);
+            dump_trie(root->subtries[i], str);
     }
 }
 
-char *getWord(node *root, char prefix[]) {
+int free_trie(node *root) {
+    if (!root) return EC;
+
+    int i;
+    for (i = 0; i < CHARSET_LEN; i++) {
+        if (root->subtries[i])
+            free_trie(root->subtries[i]);
+    }
+    free(root);
+
+    return EC;
+}
+
+char *get_word(node *root, char *prefix) {
     if (!root) return "";
 
     int i;
@@ -76,45 +92,21 @@ char *getWord(node *root, char prefix[]) {
     if (!str)
         return NULL;
 
-    for (i = 0; i < CHARSET_LEN; i++) {
+    for (i = ASCII_a; i < CHARSET_LEN; i++) {
         sprintf(str, "%s%c", prefix, i);
-        if (root->frequency[i]) {
-//            printf("%s\n", str);
-//            char *word[strlen(str)];
-//            strcpy(word, str);
+        if (root->frequency[i])
             return str;
-        }
 
         if (root->subtries[i]) {
-            char *temp = getWord(root->subtries[i], str);
+            char *temp = get_word(root->subtries[i], str);
             free(str);
             return temp;
         }
     }
 }
 
-node *getNextWordRoot(node *root, char* word, char *prefix) {
-//    if (!root) return root;//prefix;
-//
-//    char str[strlen(prefix) + 2];
-//    prefix[strlen(prefix - 1)] = word[0];
-//
-//    if (root->subtries[word[0]]) {
-//        return getNextWordRoot(root->subtries[word[0]], &word[1], str);
-//    } else {
-//        int i = (int) word[0];
-//        for (i; i < CHARSET_LEN; i++) {
-//            if (root->frequency[i])
-//                // nalezeno slovo!!! vrátit
-//                printf("%s", str);
-//
-//            if (root->subtries[i])
-//                return getWord(root, prefix);
-//        }
-//    }
-}
-
-char *getNextWord(node *root, char* word, char prefix[]) {
+//TODO geting next word
+char *get_next_word(node *root, char *word, char *prefix) {
     if (!root || !word[0]) return prefix;
 
     char *str = NULL;
@@ -123,34 +115,58 @@ char *getNextWord(node *root, char* word, char prefix[]) {
     char *temp = NULL;
     temp = (char *) malloc(sizeof(char) * (strlen(prefix) + 2));
 
-    if (!str || !temp)
+//    if (!str || !temp)
+    if (!str)
         return NULL;
 
     strcpy(temp, str);
 
     if (root->subtries[word[0]]) {
-        temp = getNextWord(root->subtries[word[0]], &word[1], str);
+        temp = get_next_word(root->subtries[word[0]], &word[1], str);
     }
 
-    if (!temp || (strlen(temp) == strlen(str))) {
+    if (!temp || !(strcmp(temp, str))) {
+        free(temp);
+
         temp = (char *) malloc(sizeof(char) * (strlen(prefix) + 2));
         if (!temp)
             return NULL;
 
+        if (root->frequency[word[0]] && root->subtries[word[0]]) {
+            sprintf(temp, "%s%c", prefix, (int) ((uchar)word[0]));
+            return get_word(root->subtries[word[0]], temp);
+        }
+
         int i = (int) ((uchar) word[0]) + 1;
+//        int i = ASCII_a;
         for (i; i < CHARSET_LEN; i++) {
             sprintf(temp, "%s%c", prefix, i);
             if (root->frequency[i]) {
-                // nalezeno slovo!!! vrátit
                 return temp;
             } else {
                 if (root->subtries[i])
-                    return getWord(root->subtries[i], temp);
+                    return get_word(root->subtries[i], temp);
             }
         }
 
         return NULL;
     }
 
-    return temp;
+    if (strcmp(temp, word))
+        return temp;
+    else
+        return NULL;
+}
+
+int get_frequency(node *root, char *word) {
+    if (!root || !word)
+        return -1;
+
+    int i;
+
+    for (i = 0; i < strlen(word) - 1; i++) {
+        root = root->subtries[(uchar) word[i]];
+    }
+
+    return root->frequency[word[strlen(word) - 1]];
 }
