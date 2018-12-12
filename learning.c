@@ -137,10 +137,11 @@ int find_roots(node *words, int mls) {
         word1 = get_next_word(words, word1, "");
     }
 
+    dump_trie(roots, "");
+
     //ulozi do souboru
     save_roots(roots);
 
-    dump_trie(roots, "");
     free_trie(roots);
 
     return EC;
@@ -220,15 +221,6 @@ int learn_mls(FILE *file, int mls) {
 
     dump_trie(words, "");
 
-    char *word = get_word(words, "");
-    while (word) {
-        printf("%s\n", word);
-        word = get_next_word(words, word, "");
-    }
-
-    return 0;
-
-    printf("-> Roots\n");
     find_roots(words, mls);
 
     free_trie(words);

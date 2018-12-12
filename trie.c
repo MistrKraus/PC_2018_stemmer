@@ -103,9 +103,10 @@ char *get_word(node *root, char *prefix) {
             return temp;
         }
     }
+
+    return prefix;
 }
 
-//TODO geting next word
 char *get_next_word(node *root, char *word, char *prefix) {
     if (!root || !word[0]) return prefix;
 
@@ -121,8 +122,10 @@ char *get_next_word(node *root, char *word, char *prefix) {
 
     strcpy(temp, str);
 
-    if (root->subtries[word[0]]) {
-        temp = get_next_word(root->subtries[word[0]], &word[1], str);
+    if (root->subtries[(uchar)word[0]]) {
+        temp = get_next_word(root->subtries[(uchar)word[0]], &word[1], str);
+        if (strlen(word) == 1)
+            temp = get_word(root->subtries[(uchar)word[0]], str);
     }
 
     if (!temp || !(strcmp(temp, str))) {
@@ -132,21 +135,20 @@ char *get_next_word(node *root, char *word, char *prefix) {
         if (!temp)
             return NULL;
 
-        if (root->frequency[word[0]] && root->subtries[word[0]]) {
-            sprintf(temp, "%s%c", prefix, (int) ((uchar)word[0]));
-            return get_word(root->subtries[word[0]], temp);
-        }
+//        if (root->frequency[word[0]] && root->subtries[word[0]]) {
+//            sprintf(temp, "%s%c", prefix, (int) ((uchar)word[0]));
+//            return get_word(root->subtries[word[0]], temp);
+//        }
 
         int i = (int) ((uchar) word[0]) + 1;
 //        int i = ASCII_a;
         for (i; i < CHARSET_LEN; i++) {
             sprintf(temp, "%s%c", prefix, i);
-            if (root->frequency[i]) {
+            if (root->frequency[i])
                 return temp;
-            } else {
-                if (root->subtries[i])
-                    return get_word(root->subtries[i], temp);
-            }
+
+            if (root->subtries[i])
+                return get_word(root->subtries[i], temp);
         }
 
         return NULL;
