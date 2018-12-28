@@ -2,13 +2,23 @@
 // Created by kraus on 12.11.2018.
 //
 
-#include <string.h>
+#include <stdlib.h>
+#include "word.h"
 
-int compare(const void *a, const void *b) {
-//    const char **w1, **w2;
+void free_likend_list(root *init_root) {
+    if (!init_root)
+        return;
+    root *temp;
 
-    const char *w1 = *(const char **)a;
-    const char *w2 = *(const char **)b;
+    while (init_root->next_root)
+        init_root = init_root->next_root;
 
-    return strcmp(w1, w2);
+    while (init_root->prev_root) {
+        free(init_root->next_root->word);
+        free(init_root->next_root);
+        init_root = init_root->prev_root;
+    }
+
+    free(init_root->word);
+    free(&init_root);
 }

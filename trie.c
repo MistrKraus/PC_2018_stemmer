@@ -135,13 +135,7 @@ char *get_next_word(node *root, char *word, char *prefix) {
         if (!temp)
             return NULL;
 
-//        if (root->frequency[word[0]] && root->subtries[word[0]]) {
-//            sprintf(temp, "%s%c", prefix, (int) ((uchar)word[0]));
-//            return get_word(root->subtries[word[0]], temp);
-//        }
-
         int i = (int) ((uchar) word[0]) + 1;
-//        int i = ASCII_a;
         for (i; i < CHARSET_LEN; i++) {
             sprintf(temp, "%s%c", prefix, i);
             if (root->frequency[i])
@@ -170,5 +164,5 @@ int get_frequency(node *root, char *word) {
         root = root->subtries[(uchar) word[i]];
     }
 
-    return root->frequency[word[strlen(word) - 1]];
+    return root->frequency[(uchar)word[strlen(word) - 1]];
 }

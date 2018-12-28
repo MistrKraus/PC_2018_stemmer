@@ -30,4 +30,13 @@
 
 typedef unsigned char uchar;
 
+typedef struct theroot {
+    char *word;
+    int freq;
+    struct theroot *prev_root;
+    struct theroot *next_root;
+} root;
+
+void free_likend_list(root *init_root);
+
 #endif

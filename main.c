@@ -8,7 +8,7 @@
 
 #define MIN_ARG_NUM 2
 #define MAX_ARG_NUM 3
-#define MIN_ROOT_LEN_ARG "-mls="
+#define MIN_ROOT_LEN_ARG "-msl="
 #define MIN_COUNT_ARG "-msf="
 
 int input_check(int argc, char const *argv[]) {
@@ -83,13 +83,8 @@ int main(int argc, char const *argv[]) {
     if (argc == MAX_ARG_NUM) {
         int arg = 0;
         arg = atoi(&argv[MAX_ARG_NUM - 1][5]);
-//
-//        if (arg == 0) {
-//            printf("Error: '%s' and '%s' arguments must be followed by integer!\n", MIN_ROOT_LEN_ARG, MIN_COUNT_ARG);
-//            return EXIT_FAILURE;
-//        }
 
-        // test file + mls
+        // test file + msl
         if (file && strstr(argv[MAX_ARG_NUM - 1], MIN_COUNT_ARG)) {
             printf("Error: Argument mismatch! Can not use %s argument for learning mod.\n", MIN_COUNT_ARG);
             return EXIT_FAILURE;
@@ -102,10 +97,10 @@ int main(int argc, char const *argv[]) {
         }
 
         if (file) {
-            learn_mls(file, arg);
+            learn_msl(file, arg);
         }
         else {
-            process_words_msf(argv[2], arg);
+            process_words_msf(argv[1], arg);
         }
     } else {
         if (file) learn(file);

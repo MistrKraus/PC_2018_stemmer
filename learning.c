@@ -2,7 +2,7 @@
 // Created by kraus on 23.10.2018.
 //
 
-// param: C:\Users\kraus\Documents\PetrKraus\Skola\FAV\PC\stemmer\o_umeni_a_kulture_iii.txt -mls=3
+// param: C:\Users\kraus\Documents\PetrKraus\Skola\FAV\PC\stemmer\o_umeni_a_kulture_iii.txt -msl=3
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,7 +13,7 @@
 #include "learning.h"
 #include "trie.h"
 
-#define DEF_MLS 3
+#define DEF_MSL 3
 
 // return lowercase char
 // if wrong char return 0
@@ -43,9 +43,8 @@ int process_char(int c) {
     return -1;
 }
 
-char *get_root(char *word1, char *word2, int mls) {
-//    printf("%s - %s", word1, word2);
-    if (!word1 || !word2 || mls < 1)
+char *get_root(char *word1, char *word2, int msl) {
+    if (!word1 || !word2 || msl < 1)
         return NULL;
 
     char *root = NULL;
@@ -58,24 +57,18 @@ char *get_root(char *word1, char *word2, int mls) {
     else
         rootLen = word2Len;
 
-    while (rootLen >= mls) {
+    while (rootLen >= msl) {
         for (i = 0; i <= word2Len - rootLen; i++) {
             root = strndup(&word2[i], rootLen);
-
             if (!root)
                 continue;
-
-            if (strstr(word1, root)) {
-//                printf(" -> %s\n", root);
+            if (strstr(word1, root))
                 return root;
-            }
+
             free(root);
         }
-
         rootLen--;
     }
-//    printf("\n");
-
     return NULL;
 }
 
@@ -86,27 +79,16 @@ int save_roots(node *roots) {
         printf("File create error.\n");
         return ERR_OUT_OF_MEMORY;
     }
-
     char *w = get_word(roots, "");
-    if (!w)
-        return -1;
-
-    int freq = get_frequency(roots, w);
-
-    while (freq > 0) {
-//        printf("%s %d\n", w, freq);
-        fprintf(file, "%s %d\r\n", w, freq);
-
+    while (w) {
+        fprintf(file, "%s %d\r\n", w, get_frequency(roots, w));
         w = get_next_word(roots, w, "");
-        if (!w)
-            break;
-        freq = get_frequency(roots, w);
     }
     fclose(file);
 }
 
-int find_roots(node *words, int mls) {
-    if (!words || mls < 0)
+int find_roots(node *words, int msl) {
+    if (!words || msl < 0)
         return ERR_NONEXISTING_TRIE;
 
     printf("Searching for roots...\n");
@@ -124,7 +106,7 @@ int find_roots(node *words, int mls) {
     while (word1) {
         word2 = get_next_word(words, word1, "");
         while (word2) {
-            root = get_root(word1, word2, mls);
+            root = get_root(word1, word2, msl);
 
             if (root) {
                 insert_to_trie(roots, root);
@@ -137,9 +119,10 @@ int find_roots(node *words, int mls) {
         word1 = get_next_word(words, word1, "");
     }
 
-    dump_trie(roots, "");
+//    dump_trie(roots, "");
 
     //ulozi do souboru
+    printf("Saving roots\n");
     save_roots(roots);
 
     free_trie(roots);
@@ -147,7 +130,7 @@ int find_roots(node *words, int mls) {
     return EC;
 }
 
-node* load_words_mls(FILE *file, int mls) {
+node* load_words_msl(FILE *file, int msl) {
     // ASCII of char in file
     int c;
     // index of chars in string
@@ -161,30 +144,28 @@ node* load_words_mls(FILE *file, int mls) {
 
     c = fgetc(file);
 
-    // TODO remake char loading/processing
-    while (c != EOF && word_num < 100) {
+    while (c != EOF) {// && word_num < 100) {
         char w[WORD_LEN];
 
         n = 0;
         c = process_char(c);
         while (c != -1) {
-            w[n++] = (char) c;
+            w[n] = (char) c;
 
             c = fgetc(file);
             c = process_char(c);
+            n++;
         }
-
-//        printf("%s\n", w);
-        // terminate with the null character
         w[n] = '\0';
 
         // Next valid char
-        while (c < ASCII_A) {
+        c = fgetc(file);
+        while (c < ASCII_A && c != EOF) {
             c = fgetc(file);
         }
 
-        // word length is lower then mls do not save
-        if (n < mls)
+        // word length is lower then msl do not save
+        if (n < msl)
             continue;
 
         switch (insert_to_trie(trie, w)) {
@@ -205,14 +186,12 @@ node* load_words_mls(FILE *file, int mls) {
     }
     printf("-> All words loaded\n");
 
-    fclose(file);
-
     return trie;
 }
 
-int learn_mls(FILE *file, int mls) {
+int learn_msl(FILE *file, int msl) {
     node *words = NULL;
-    words = load_words_mls(file, mls);
+    words = load_words_msl(file, msl);
 
     if (!words) {
         printf("Error");
@@ -220,13 +199,12 @@ int learn_mls(FILE *file, int mls) {
     }
 
     dump_trie(words, "");
-
-    find_roots(words, mls);
+    find_roots(words, msl);
 
     free_trie(words);
     printf("Trie is free\n");
 }
 
 int learn(FILE *file) {
-    learn_mls(file, DEF_MLS);
+    learn_msl(file, DEF_MSL);
 }
