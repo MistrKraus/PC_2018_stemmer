@@ -4,72 +4,71 @@
 
 #include "learning.h"
 #include "word_processing.h"
-#include "trie.h"
+#include "error_levels.h"
 
 #define MIN_ARG_NUM 2
 #define MAX_ARG_NUM 3
 #define MIN_ROOT_LEN_ARG "-msl="
 #define MIN_COUNT_ARG "-msf="
+#define MLS_MSF_ARG_STR_LEN 4
 
+/**
+ * Checks args
+ *
+ * @param argc Number of args
+ * @param argv Args
+ * @return Error level
+ */
 int input_check(int argc, char const *argv[]) {
     // test number of arguments
-    if (argc < MIN_ARG_NUM || argc > MAX_ARG_NUM) return 1;
-
-    // test postfix .exe
-//    long file_strlen = strlen(argv[1]);
-//    if (!('.' == argv[1][file_strlen-4] && 'e' == argv[1][file_strlen-3] == argv[1][file_strlen-1] &&
-//            'x' == argv[1][file_strlen-2])) return 2;
-
-//    printf("%s\n", &argv[1][file_strlen-4]);
-//    printf("%d\n", strcmp(&argv[1][file_strlen-4], ".exe"));
-//    if (strcmp(&argv[1][file_strlen-4], POSTFIX)) return 2;
+    if (argc < MIN_ARG_NUM || argc > MAX_ARG_NUM)
+        return ARG_COUNT_ERR;
 
     // test 2nd argument
     if (argc == MAX_ARG_NUM) {
-        // test args validity
+        // test 2nd arg validity
         if (!(strstr(argv[MAX_ARG_NUM - 1], MIN_ROOT_LEN_ARG) || strstr(argv[MAX_ARG_NUM -1], MIN_COUNT_ARG))
                 || '-' != argv[MAX_ARG_NUM - 1][0])
-            return 2;
+            return UNKNOWN_ARG_ERR;
 
+        // checks if MLS or MSF arg is followed by integer value
         int arg = 0;
-        arg = atoi(&argv[MAX_ARG_NUM - 1][5]);
-
+        arg = atoi(&argv[MAX_ARG_NUM - 1][MLS_MSF_ARG_STR_LEN + 1]);
         if (arg == 0) {
-            return 3;
+            return INT_REQ_ERR;
         }
     }
 
-    return 0;
+    return NO_ERR;
 }
 
+/**
+ * Application entrance point
+ * Choose a mode and run it
+ *
+ * @param argc Number of args
+ * @param argv Args
+ * @return Err level
+ */
 int main(int argc, char const *argv[]) {
-    //chcp(28592);  zmena kodovani (windows)
-    //ISO latin 2
-    //    8859-2
-
-//    get_root("poiuz", "oijkl", 3);
-//
-//    return 0;
-
-    //printf("%d %s\n", argc, argv[1]);
+    int output = NO_ERR;
     switch (input_check(argc, argv)) {
-        case 0:
+        case NO_ERR:
             break;
-        case 1:
+        case ARG_COUNT_ERR:
             printf("Error: Wrong argument count!\nUsage: sistem.exe <corpus-file | [\"]word-sequence[\"]> [-msl=<integer>] | [-msf=<integer>]\n");
             return EXIT_FAILURE;
-        case 2:
+        case UNKNOWN_ARG_ERR:
             printf("Error: Unknown argument %s!\nUsage: sistem.exe <corpus-file | [\"]word-sequence[\"]> [-msl=<integer>] | [-msf=<integer>]\n",
                    argv[MAX_ARG_NUM - 1]);
             return EXIT_FAILURE;
-        case 3:
+        case INT_REQ_ERR:
             printf("Error: '%s' and '%s' arguments must be followed by integer > 0!\n", MIN_ROOT_LEN_ARG, MIN_COUNT_ARG);
             return EXIT_FAILURE;
         default:
             printf("Unknown error\n");
             return EXIT_FAILURE;
     }
-//    printf("Arguments accepted!\n");
 
     FILE *file = fopen(argv[1], "r");
 
@@ -80,35 +79,42 @@ int main(int argc, char const *argv[]) {
         file = fopen(arg_1, "r");
     }
 
+    // if has specified MLS or MSF
     if (argc == MAX_ARG_NUM) {
         int arg = 0;
         arg = atoi(&argv[MAX_ARG_NUM - 1][5]);
 
-        // test file + msl
+        // test combination file + msl
         if (file && strstr(argv[MAX_ARG_NUM - 1], MIN_COUNT_ARG)) {
             printf("Error: Argument mismatch! Can not use %s argument for learning mod.\n", MIN_COUNT_ARG);
             return EXIT_FAILURE;
         }
 
-        // test words + msf
+        // test combination words + msf
         if (!file && strstr(argv[MAX_ARG_NUM - 1], MIN_ROOT_LEN_ARG)) {
             printf("Error: Argument mismatch! Can not use %s argument for learning mod.\n", MIN_ROOT_LEN_ARG);
             return EXIT_FAILURE;
         }
 
-        if (file) {
-            learn_msl(file, arg);
-        }
-        else {
-            process_words_msf(argv[1], arg);
-        }
+        // if 1st arg is file run learning with mls arg
+        if (file)
+            output = learn_msl(file, arg);
+        // else search for roots with msf arg
+        else
+            output = process_words_msf(argv[1], arg);
     } else {
-        if (file) learn(file);
-        else {
-            //printf("File not found");
-            process_words(argv[1]);
-        }
+        // if 1st arg is file run learning
+        if (file)
+            output = learn(file);
+        // else search for roots
+        else
+            output = process_words(argv[1]);
     }
+
+    if (output == NO_ERR)
+        printf("Algorithm successfully finished.");
+    else
+        printf("Something went wrong. Algorithm didn't finish.");
 
     return EXIT_SUCCESS;
 }

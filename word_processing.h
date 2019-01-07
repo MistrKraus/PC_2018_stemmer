@@ -7,16 +7,24 @@
 
 #include "trie.h"
 #include "word.h"
+#include "learning.h"
 
-#define ERR_NONEXISTING_FILE 1
+// Default MSF value
+#define DEF_MSF 10
+// Root not found constant
+#define ROOT_NOT_FOUND "0"
+// Word separator
 #define SEPARATOR ' '
 
+// Run algorithms searching for roots in words
 int process_words(const char *words);
+// Run algorithms searching for roots in words; with specified MSF
 int process_words_msf(const char *words, int msf);
+// Loads roots from file *f with frequency >= msf
 root *load_roots(FILE *f, int mls);
-int find_words_roots(const char *words, root *init_root, int msf);
-char *find_next_word(char *words, int start_id);
-char *get_longest_root(char *word, root *roots, int msf);
-int process_char2(int c);
+// Find words roots in linked list of roots
+int find_words_roots(const char *words, root *init_root);
+// Find the longest root of the word in linked list
+char *get_longest_root(char *word, root *roots);
 
 #endif //STEMMER_WORD_PROCESSING_H

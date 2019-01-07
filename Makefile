@@ -1,5 +1,5 @@
 CC = gcc
-BIN = main.exe
+BIN = sistem.exe
 OBJ = learning.o main.o trie.o word.o word_processing.o
 
 all: $(BIN) clean

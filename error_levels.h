@@ -1,0 +1,18 @@
+//
+// Created by kraus on 07.01.2019.
+//
+
+#ifndef STEMMER_ERROR_LEVELS_H
+#define STEMMER_ERROR_LEVELS_H
+
+#define ARG_COUNT_ERR 1
+#define UNKNOWN_ARG_ERR 2
+#define INT_REQ_ERR 3
+#define NONEXISTING_TRIE_ERR 4
+#define OUT_OF_MEMORY_ERR 5
+#define ERR_NONEXISTING_FILE 6
+#define STRUCT_CREATING_ERR 7
+
+#define NO_ERR 0
+
+#endif //STEMMER_ERROR_LEVELS_H
