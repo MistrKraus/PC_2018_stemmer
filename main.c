@@ -13,7 +13,7 @@
 #define MLS_MSF_ARG_STR_LEN 4
 
 /**
- * Checks args
+ * Checks args validity
  *
  * @param argc Number of args
  * @param argv Args
@@ -74,7 +74,7 @@ int main(int argc, char const *argv[]) {
 
     // if file not found add .txt to the path
     if (!file) {
-        char arg_1[256];
+        char arg_1[CHARSET_LEN];
         snprintf(arg_1, sizeof arg_1, "%s%s", argv[1], ".txt");
         file = fopen(arg_1, "r");
     }
@@ -97,24 +97,41 @@ int main(int argc, char const *argv[]) {
         }
 
         // if 1st arg is file run learning with mls arg
-        if (file)
+        if (file) {
             output = learn_msl(file, arg);
-        // else search for roots with msf arg
+            fclose(file);
+        } // else search for roots with msf arg
         else
             output = process_words_msf(argv[1], arg);
     } else {
         // if 1st arg is file run learning
-        if (file)
+        if (file) {
             output = learn(file);
-        // else search for roots
+            fclose(file);
+        } // else search for roots
         else
             output = process_words(argv[1]);
     }
 
-    if (output == NO_ERR)
-        printf("Algorithm successfully finished.");
-    else
-        printf("Something went wrong. Algorithm didn't finish.");
+    switch (output) {
+        case NO_ERR:
+//            printf("Algorithm successfully finished\n");
+            break;
+        case NONEXISTING_TRIE_ERR:
+            printf("Error: Loading words from file error\n");
+            break;
+        case OUT_OF_MEMORY_ERR:
+            printf("Error: Out of memory\n");
+            break;
+        case ERR_NONEXISTING_FILE:
+            printf("Error: File (%s) with roots not found\n", ROOT_FILE);
+            break;
+        case UNKNOWN_ARG_ERR:
+            printf("Error: Unknown argument\n");
+            break;
+        default:
+            printf("Error: Something went wrong. Algorithm didn't finish\n");
+    }
 
     return EXIT_SUCCESS;
 }

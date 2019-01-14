@@ -24,9 +24,7 @@ int learn(FILE *file);
 int save_roots(node *roots);
 // Find words roots
 int find_roots(node *words, int msl);
-// Search "root" by comparing word1 and word2
+// Search "ll_node" by comparing word1 and word2
 char *get_root(char *word1, char *word2, int msl);
-// Check if char valid and return it's lowercase
-int process_char(int c);
 
 #endif //STEMMER_LEARNING_H

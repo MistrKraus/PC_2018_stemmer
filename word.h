@@ -5,6 +5,8 @@
 #ifndef __WORD__
 #define __WORD__
 
+#include "error_levels.h"
+
 // Word length in trie
 #define WORD_LEN 128
 // ASCII code for A
@@ -43,6 +45,8 @@
 #define ASCII_DIAC_SHIFHT1_3 16
 // Uppercase to lowercase shift diacritic 2
 #define ASCII_DIAC_SHIFHT2 32
+// Quotation mark
+#define ASCII_QUOT_MARK 34
 // Uppercase to lowercase
 #define ASCII_SHIFT 32
 // ASCII 0
@@ -56,14 +60,18 @@
 typedef unsigned char uchar;
 
 // Linked list data structure
-typedef struct theroot {
+typedef struct thell_node {
     char *word;
-    struct theroot *next_root;
-} root;
+    struct thell_node *next;
+} ll_node;
 
 // Free linked list node
-void free_linked_list_node(root *node);
+void free_linked_list_node(ll_node **node);
 // Free linked list
-void free_linked_list(root *init_root);
+void free_linked_list(ll_node **init_root);
+// Add node into linked list
+int add_node(ll_node **head, char *word);
+// Check if char valid and return it's lowercase
+int process_char(int c);
 
 #endif  //__WORD__

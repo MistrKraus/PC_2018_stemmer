@@ -1,7 +1,7 @@
 //
 // Created by kraus on 23.10.2018.
 //
-// "capek umeni vydlak aktery" -msf=1
+// "šel pes do lesa a potkal dlažební kostku" -msf=15
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,29 +16,32 @@
  * @param roots linked list of roots
  * @return The longest root of the word; or ROOT_NOT_FOUND constant
  */
-char *get_longest_root(char *word, root *roots) {
+char *get_longest_root(char *word, ll_node *roots) {
     if (!word || !roots)
         return ROOT_NOT_FOUND;
 
     char *root = NULL;
     int max_root_len = 0;
-    int w_len = 0;
+//    int w_len = strlen(roots->word);
 
     // while there are roots search
     while (roots->word) {
-        w_len = strlen(roots->word);
-        // if length of root > length of the longest already found root && root actually is root of the word
-        if ((w_len > max_root_len) && strstr(word, roots->word)) {
+        // if roots->word is root of the word
+        if (strstr(word, roots->word)) {
             root = roots->word;
-            max_root_len = w_len;
+            max_root_len = strlen(root);
         }
 
-        if (roots->next_root)
-            roots = roots->next_root;
-        else
+        if (!roots->next)
             break;
+
+        while (roots->next) {
+            roots = roots->next;
+            if (strlen(roots->word) > max_root_len)
+                break;
+        }
     }
-    // if root not found return ROOT_NOT_FOUND constant
+    // if ll_node not found return ROOT_NOT_FOUND constant
     if (!root)
         return ROOT_NOT_FOUND;
     return root;
@@ -51,7 +54,7 @@ char *get_longest_root(char *word, root *roots) {
  * @param init_root linked list of words
  * @return Error level
  */
-int find_words_roots(const char *words, root *init_root) {
+int find_words_roots(const char *words, ll_node *init_root) {
     if (!words || !init_root)
         return UNKNOWN_ARG_ERR;
 
@@ -66,16 +69,19 @@ int find_words_roots(const char *words, root *init_root) {
         if (!w)
             return OUT_OF_MEMORY_ERR;
 
+        if (words[i] == ASCII_QUOT_MARK)
+            i++;
+
         // Load one word
         n = 0;
-        while (i < words_len && words[i] != SEPARATOR) {
+        while (i < words_len && words[i] != SEPARATOR && words[i] != ASCII_QUOT_MARK) {
             w[n] = words[i];
             i++;
             n++;
         }
         w[n] = '\0';
 
-        // Find root of the word and print it
+        // Find ll_node of the word and print it
         w_len = strlen(w);
         if (w_len > 0) {
             temp = get_longest_root(w, init_root);
@@ -84,6 +90,9 @@ int find_words_roots(const char *words, root *init_root) {
         i++;
         free(w);
     }
+    w = NULL;
+    temp = NULL;
+
     return NO_ERR;
 }
 
@@ -94,50 +103,29 @@ int find_words_roots(const char *words, root *init_root) {
  * @param msf Minimum Stem length
  * @return Linked list first node with roots
  */
-root *load_roots(FILE *f, int msf) {
+ll_node *load_roots(FILE *f, int msf) {
     if (!f)
         return NULL;
 
     char *w = NULL;
-    int root_size = sizeof(root);
+    int root_size = sizeof(ll_node);
     // Root linked list first node
-    root *init_root = (root *) malloc(root_size);
+    ll_node *init_root = (ll_node *) malloc(root_size);
     if (!init_root)
         return NULL;
-    root *root1 = (root *) malloc(root_size);
-    if (!root1) {
-        free(init_root);
-        return NULL;
-    }
-    root *root2 = NULL;
 
     init_root->word = NULL;
-    init_root->next_root = NULL;
-
-    root1->word = NULL;
-    root1->next_root = NULL;
+    init_root->next = NULL;
 
     int c = fgetc(f);
-    int n = 0, freq = 0;
+    int n = 0;
+    int freq = 0;
     while (c != EOF) {
         n = 0;
         freq = 0;
         w = (char *) malloc(sizeof(char) * WORD_LEN);
-        if (!w) {
-            free(init_root);
-            free(root1);
+        if (!w)
             return NULL;
-        }
-        root2 = (root *) malloc(root_size);
-        if (!root2) {
-            free(init_root);
-            free(root1);
-            free(w);
-            return NULL;
-        }
-
-        root2->word = NULL;
-        root2->next_root = NULL;
 
         // load word
         c = process_char(c);
@@ -158,33 +146,20 @@ root *load_roots(FILE *f, int msf) {
             c = fgetc(f);
         }
         // Loading next valid char or EOF
-        while (c && c != EOF) {
+        c = process_char(c);
+        while (!c) {
             c = fgetc(f);
             c = process_char(c);
         }
 
+        // if freq < msf don't add into linked list
         if (freq < msf) {
-            free(root2);
             free(w);
             continue;
         }
-
-        // save root into linked list
-        if (init_root->word) {
-            root2->word = w;
-
-            root1->next_root = root2;
-            root1 = root2;
-        } else {
-            init_root->word = w;
-            root1 = init_root;
-        }
+        add_node(&init_root, w);
+        w = NULL;
     }
-
-//    printf("init_root: %s\n", init_root->word);
-//    printf("root1: %s\n", root1->word);
-//    printf("root2: %s\n", root2->word);
-//    free(root1);
 
     return init_root;
 }
@@ -206,18 +181,23 @@ int process_words_msf(const char *words, int msf) {
     if (!f)
         return ERR_NONEXISTING_FILE;
 
-    root *init_root = load_roots(f, msf);
+    ll_node *init_root = load_roots(f, msf);
     fclose(f);
+    f = NULL;
     if (!init_root)
         return OUT_OF_MEMORY_ERR;
+//    printf("-> All roots loaded\n");
 
-    find_words_roots(words, init_root);
 
-    free_linked_list(init_root);
+//    printf("Searching for words roots...\n");
+    int output = find_words_roots(words, init_root);
+
+//    printf("Freeing allocated memory\n");
+    free_linked_list(&init_root);
+    free(init_root);
     init_root = NULL;
-//    free(init_root);
 
-    return NO_ERR;
+    return output;
 }
 
 /**

@@ -35,24 +35,26 @@ node *create_trie() {
  * @return Error level
  */
 int insert_to_trie(node *root, char *word) {
-    if (!root || !word) return NONEXISTING_TRIE_ERR;
+    if (!root || !word)
+        return NONEXISTING_TRIE_ERR;
     unsigned int idx = 0;
-    int i, L;
+    int i;
+    int w_len;
     node *walk = root;
 
-    L = strlen(word);
-    for (i = 0; i < L; i++) {
+    w_len = strlen(word);
+    for (i = 0; i < w_len; i++) {
         idx = (unsigned char) word[i];
         // if subtrie with required letter exist
         if (walk->subtries[idx]) {
             // if not last letter in word
-            if (i < L - 1)
+            if (i < w_len - 1)
                 walk = walk->subtries[idx];
             else
                 walk->frequency[idx]++;
         } else {
             // if not last letter in word
-            if (i < L - 1) {
+            if (i < w_len - 1) {
                 // create subtrie
                 walk->subtries[idx] = create_trie();
                 if (!walk->subtries[idx])
@@ -60,6 +62,7 @@ int insert_to_trie(node *root, char *word) {
 
                 walk = walk->subtries[idx];
             } else
+                // frequency of the word
                 walk->frequency[idx]++;
         }
     }
@@ -124,12 +127,16 @@ char *get_word(node *root, char *prefix) {
     if (!str)
         return NULL;
 
-    for (i = ASCII_a; i < CHARSET_LEN; i++) {
-        sprintf(str, "%s%c", prefix, i);
-        if (root->frequency[i])
+    for (i = ASCII_a; i <= ASCII_LOW_DIAC_MAX2; i++) {
+        // if there is a word
+        if (root->frequency[i]) {
+            sprintf(str, "%s%c", prefix, i);
             return str;
+        }
 
+        // there is another word with same prefix
         if (root->subtries[i]) {
+            sprintf(str, "%s%c", prefix, i);
             char *temp = get_word(root->subtries[i], str);
             free(str);
             return temp;
@@ -146,7 +153,7 @@ char *get_word(node *root, char *prefix) {
  * @param root trie node
  * @param word current word
  * @param prefix prefix of next word
- * @return
+ * @return next word in trie
  */
 char *get_next_word(node *root, char *word, char *prefix) {
     if (!root || !word[0]) return prefix;
@@ -160,7 +167,6 @@ char *get_next_word(node *root, char *word, char *prefix) {
     char *temp = NULL;
     temp = (char *) malloc(sizeof(char) * (strlen(prefix) + 2));
     char *w = NULL;
-
     if (!temp) {
         free(str);
         return NULL;
@@ -177,6 +183,7 @@ char *get_next_word(node *root, char *word, char *prefix) {
         }
     }
 
+
     if (!temp || !(strcmp(temp, str))) {
         if (temp)
             free(temp);
@@ -188,19 +195,19 @@ char *get_next_word(node *root, char *word, char *prefix) {
         }
 
         int i = (int) ((uchar) word[0]) + 1;
-        for (i; i < CHARSET_LEN; i++) {
-            sprintf(temp, "%s%c", prefix, i);
+        for (i; i <= ASCII_LOW_DIAC_MAX2; i++) {
             if (root->frequency[i]) {
+                sprintf(temp, "%s%c", prefix, i);
                 free(str);
                 return temp;
             }
 
             if (root->subtries[i]) {
+                sprintf(temp, "%s%c", prefix, i);
                 w = get_word(root->subtries[i], temp);
                 free(str);
                 free(temp);
                 return w;
-//                return get_word(root->subtries[i], temp);
             }
         }
 
